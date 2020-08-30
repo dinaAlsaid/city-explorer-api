@@ -15,20 +15,20 @@ server.get('/', (req, res) => {
 server.get('/location', (req , res) => {
     const locationData = require('./data/location.json');
     let city = req.query.city;
-    let location=[];
+    let location=new Location(city,locationData);
     // console.log(city);
-    locationData.forEach(item => {
-        location.push( new Location(city,item) );
-    })
+    // locationData.forEach(item => {
+    //     location.push( new Location(city,item) );
+    // })
     res.send(location);
 
     // res.send("let's see what happens"); we can only have one response (will cause an error)
 });
 function Location(city,data){
     this.search_query = city;
-    this.formatted_query = data.display_name;
-    this.latitude = data.lat;
-    this.longotude = data.lon;
+    this.formatted_query = data[0].display_name;
+    this.latitude = data[0].lat;
+    this.longotude = data[0].lon;
 }
 
 
