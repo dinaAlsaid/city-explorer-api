@@ -7,7 +7,7 @@ require('dotenv').config();
 const PORT = process.env.PORT || 2000;
 
 //main page
-server.get('/', (req, res) => {
+server.status(200).get('/', (req, res) => {
     res.send('please wait');
 });
 
