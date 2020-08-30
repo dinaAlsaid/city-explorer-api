@@ -1,10 +1,11 @@
 # city-explorer-api
 
-**Author**: Your Name Goes Here
+**Author**: Dina Alsaid
 **Version**: 1.0.0 (increment the patch/fix version number if you make more commits past your first submission)
 
 ## Overview
 <!-- Provide a high level overview of what this application is and why you are building it, beyond the fact that it's an assignment for this class. (i.e. What's your problem domain?) -->
+ City Explorer Application allows a user to search for a location, present a Map, as well as interesting information about the area.
 
 ## Getting Started
 <!-- What are the steps that a user must take in order to build this app on their own machine and get it running? -->
