@@ -10,7 +10,7 @@ server.use(cors());
 
 //main page
 server.get('/', (req, res) => {
-    res.send('please wait');
+    res.status(200).send('please wait');
 });
 
 //location route 
@@ -42,12 +42,12 @@ server.get('/weather', (req, res) => {
 });
 
 function Forecast(weatherDay) {
-    this.forecast= weatherDay.weather.description ;
+    this.forecast = weatherDay.weather.description;
     this.time = `${this.weekDay(weatherDay)}, ${weatherDay.datetime}`;
 };
 
-Forecast.prototype.weekDay = function(weatherDay) {
-    let date = new Date (weatherDay.datetime);
+Forecast.prototype.weekDay = function (weatherDay) {
+    let date = new Date(weatherDay.datetime);
     switch (date.getDay()) {
         case 0:
             return 'Sun'
@@ -70,12 +70,23 @@ Forecast.prototype.weekDay = function(weatherDay) {
         case 6:
             return 'Sat'
             break;
-                                                            
+
     };
 
 };
+// server.get('*',(req,res,error)=>{
+//     res.status(404).send({
+//         status: 404,
+//         responseText: "Sorry, something went wrong",
+//     });
+// })
 
-
+server.use((req,res,error)=>{
+    res.status(500).send({
+        status: 500,
+        responseText: "Sorry, something went wrong",
+    });
+})
 server.listen(PORT, () => {
     console.log("Serevr is up");
 });
