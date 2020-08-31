@@ -32,11 +32,18 @@ function locationHandler (req, res) {
         res.send(location);
     })
 }
-
+// https://api.weatherbit.io/v2.0/forecast/daily?city=Raleigh,NC&key=API_KEY
 function weatherHandler(req, res){
-    const weatherData = require('./data/weather.json');
-    let foreCast = weatherData.data.map((item)=> new Forecast(item));
-    res.send(foreCast);
+    let key = process.env.WEATHER_API_KEY; 
+    let lon = req.query.longitude;
+    let lat = req.query.latitude;
+    let url = `https://api.weatherbit.io/v2.0/forecast/daily?lat=${lat}&lon=${lon}&key=${key}`
+
+    superagent.get(url)
+    .then(weather => {
+        let foreCast = weather.body.data.map((item)=> new Forecast(item));
+        res.send(foreCast);
+    })
 }
 
 function errorHandler(req,res,error){

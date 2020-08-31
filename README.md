@@ -17,6 +17,8 @@
 
 30-08-2020 5:30pm - Application now has a fully-functional express server, with a GET route for the location resource.
 30-08-2020 10:00pm - Application now has a GET route for the weather resource and an error message for invalid routes.
+31-08-2020 5:00pm - Application is now connected to both location and weather APIs.
+
 
 <!-- Use this area to document the iterative changes made to your application as each feature is successfully implemented. Use time stamps. Here's an examples:
 
