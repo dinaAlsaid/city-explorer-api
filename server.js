@@ -2,42 +2,62 @@
 
 const express = require('express');
 const server = express();
-require('dotenv').config();
 const cors = require('cors');
+const superagent = require('superagent');
+require('dotenv').config();
 
 const PORT = process.env.PORT || 2000;
 server.use(cors());
 
-//main page
+
+//routing
 server.get('/', (req, res) => {
     res.status(200).send('please wait');
 });
 
-//location route 
-// https://eu1.locationiq.com/v1/search.php?key=YOUR_PRIVATE_TOKEN&q=SEARCH_STRING&format=json
+server.get('/weather', weatherHandler);
+server.get('/location', locationHandler);
+server.use('*', notFoundHandler);
+server.use(errorHandler);
 
-server.get('/location', (req, res) => {
-    const locationData = require('./data/location.json');
+
+function locationHandler (req, res) {
     let city = req.query.city;
-    let location = new Location(city, locationData);
-    res.send(location);
+    let key = process.env.GEOCODE_API_KEY;
+    const url = `https://eu1.locationiq.com/v1/search.php?key=${key}&q=${city}&format=json`;
 
-    // res.send("let's see what happens"); we can only have one response (will cause an error)
-});
+    superagent.get(url)
+    .then( data => {
+        let location = new Location(city, data.body); //the get will return All the data but the data we need is in the body
+        res.send(location);
+    })
+}
+
+function weatherHandler(req, res){
+    const weatherData = require('./data/weather.json');
+    let foreCast = weatherData.data.map((item)=> new Forecast(item));
+    res.send(foreCast);
+}
+
+function errorHandler(req,res,error){
+    res.status(500).send({
+        status: 500,
+        responseText: "Sorry, something went wrong",
+    });
+}
+
+function notFoundHandler(req,res){
+    res.status(404).send('Not Found');
+}
+
+
+//constructors
 function Location(city, data) {
     this.search_query = city;
     this.formatted_query = data[0].display_name;
     this.latitude = data[0].lat;
     this.longitude = data[0].lon;
 }
-
-//weather route
-server.get('/weather', (req, res) => {
-    const weatherData = require('./data/weather.json');
-    let foreCast = weatherData.data.map((item)=> new Forecast(item));
-    res.send(foreCast);
-    // res.send("let's see what happens"); we can only have one response (will cause an error)
-});
 
 function Forecast(weatherDay) {
     this.forecast = weatherDay.weather.description;
@@ -72,19 +92,7 @@ Forecast.prototype.weekDay = function (weatherDay) {
     };
 
 };
-// server.get('*',(req,res,error)=>{
-//     res.status(404).send({
-//         status: 404,
-//         responseText: "Sorry, something went wrong",
-//     });
-// })
 
-server.use((req,res,error)=>{
-    res.status(500).send({
-        status: 500,
-        responseText: "Sorry, something went wrong",
-    });
-})
 server.listen(PORT, () => {
     console.log("Serevr is up");
 });
