@@ -14,6 +14,8 @@ server.get('/', (req, res) => {
 });
 
 //location route 
+// https://eu1.locationiq.com/v1/search.php?key=YOUR_PRIVATE_TOKEN&q=SEARCH_STRING&format=json
+
 server.get('/location', (req, res) => {
     const locationData = require('./data/location.json');
     let city = req.query.city;
@@ -32,12 +34,8 @@ function Location(city, data) {
 //weather route
 server.get('/weather', (req, res) => {
     const weatherData = require('./data/weather.json');
-    let foreCast = [];
-    weatherData.data.forEach(item => {
-        foreCast.push(new Forecast(item));
-    })
+    let foreCast = weatherData.data.map((item)=> new Forecast(item));
     res.send(foreCast);
-
     // res.send("let's see what happens"); we can only have one response (will cause an error)
 });
 
