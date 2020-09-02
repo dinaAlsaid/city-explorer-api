@@ -20,6 +20,8 @@ server.get("/", (req, res) => {
 server.get("/weather", weatherHandler);
 server.get("/location", locationHandler);
 server.get("/trails", trailHandler);
+server.get("/movies", moviesHandler);
+server.get("/yelp", yelpHandler);
 server.use("*", notFoundHandler);
 server.use(errorHandler);
 
@@ -47,7 +49,7 @@ function checkDB(city, url,res) {
             });
         }
     });
-
+        
 
 }
 
@@ -82,20 +84,55 @@ function trailHandler(req, res) {
     let lon = req.query.longitude;
     let lat = req.query.latitude;
     let url = `https://www.hikingproject.com/data/get-trails?lat=${lat}&lon=${lon}&key=${key}`;
-    //   let tenTrails=[];
 
     superagent
         .get(url)
         .then((hike) => {
-            //   for (let i = 0; i < hike.body.trails.length && i<10; i++) {
-            //       tenTrails.push(hike.body.trails[i]);
-            //   }
             let trail = hike.body.trails.map((item) => new Trail(item));
-            res.send(trail);
+            res.status(200).send(trail);
         })
         .catch(() => {
             errorHandler(req, res);
         });
+}
+
+//https://api.themoviedb.org/3/movie/550?api_key=e8c390c87dda40fcff8bcffc9156f6b2&region
+function moviesHandler(req,res){
+    let key = process.env.MOVIE_API_KEY;
+    let city = req.query.city;
+    //TODO
+    let url = `https://api.themoviedb.org/3/movie/550?api_key=${key}&query=${city}`;
+
+    superagent.get(url)
+        .then((results) => {
+            let movie = results.body.map((item) => new Movies(item));
+            res.status(200).send(movie);
+        })
+        .catch(() => {
+            errorHandler(req, res);
+        });
+
+
+}
+function yelpHandler (req , res ){
+    let key =process.env.YELP_API_KEY;
+    let lon = req.query.longitude;
+    let lat = req.query.latitude;
+    let url = `https://api.yelp.com/v3/businesses/search?text=del&latitude=${lon}&longitude=${lat}`;
+    ///TODO
+    superagent.get(url)
+    .then((results) => {
+        console.log("jgjhg");
+        req.headers['Authorization']=`Bearer ${key}`;
+        res.headers['Authorization']=`Bearer ${key}`;
+
+        let review = results.body.businesses.map((item) => new Review(item));
+        console.log(results)
+        res.status(200).send(review);
+    })
+    .catch(() => {
+        errorHandler(req, res);
+    });
 }
 
 function errorHandler(req, res) {
@@ -156,7 +193,22 @@ function Trail(trailData) {
     this.condition_date = trailData.conditionDate.split(" ")[0];
     this.condition_time = trailData.conditionDate.split(" ")[1];
 }
-
+function Movies(movieData){
+    this.title = movieData.title;
+    this.overview = movieData.overview;
+    this.average_votes = movieData.vote_average;
+    this.total_votes= movieData.vote_count;
+    this.image_url= movieData.poster.path;
+    this.popularity= movieData.popularity
+    this.released_on= movieData.release_date;
+}
+function Review(yelpData){
+    this.name= yelpData.name;
+    this.image_url= yelpData.image_url;
+    this.price= yelpData.price;
+    this.rating= yelpData.rating;
+    this.url= yelpData.url;
+}
 client.connect().then(() => {
     server.listen(PORT, () => {
         console.log("Serevr is up");
