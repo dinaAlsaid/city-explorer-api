@@ -28,16 +28,16 @@ server.use(errorHandler);
 
 
 
-function checkDB(city, url, key) {
-    var location = {};
-    let SQL = `SELECT search_query FROM t1;`
+function checkDB(city, url) {
+    var location;
+    let SQL = `SELECT search_query FROM t1 WHERE $1;`
+    safeValues = [city];
     let foundInDB  = false;
 
-    client.query(SQL)
+    client.query(SQL,safeValues)
         .then(results => {
             if (results.rows != [] ) {
                 results.rows.forEach(item => {
-                    
                     if (city == item.search_query.toLowerCase()) {
                         location = item;
                         console.log("from database", item.search_query);
@@ -68,21 +68,10 @@ function locationHandler(req, res) {
     let key = process.env.GEOCODE_API_KEY;
     var url = `https://eu1.locationiq.com/v1/search.php?key=${key}&q=${city}&format=json`;
 
-    // superagent.get(url)
-    // .then((data) => {
-    //     let location = new Location(city, data.body); //the get will return All the data but the data we need is in the body
-    //     let SQL2 = `INSERT INTO t1 VALUES ('${city}','${location.formatted_query}','${location.latitude}','${location.longitude}');`;
-    //     client.query(SQL2);//don't need to wait for it to process
-    //     console.log("from locationHandler");
 
-    // })
+    let loc = checkDB(city, url);
 
-
-
-
-    let loc = checkDB(city, url, key);
-
-    res.status(200).json(loc);
+    res.status(200).send(loc);
 }
 
 function weatherHandler(req, res) {
