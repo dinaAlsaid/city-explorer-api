@@ -4,9 +4,13 @@ const express = require("express");
 const server = express();
 const cors = require("cors");
 const superagent = require("superagent");
+const pg = require('pg');
+
 require("dotenv").config();
 
+
 const PORT = process.env.PORT || 2000;
+const client = new pg.Client(process.env.DATABASE_URL);
 server.use(cors());
 
 //routing
@@ -21,20 +25,66 @@ server.use("*", notFoundHandler);
 server.use(errorHandler);
 
 
+
+
+
+function checkDB(city, url, key) {
+    var location = {};
+    let SQL = `SELECT search_query FROM t1;`
+    let foundInDB  = false;
+
+    client.query(SQL)
+        .then(results => {
+            if (results.rows != [] ) {
+                results.rows.forEach(item => {
+                    
+                    if (city == item.search_query.toLowerCase()) {
+                        location = item;
+                        console.log("from database", item.search_query);
+                        foundInDB =true;
+                    }
+                })
+            } else if (results.rows == [] || foundInDB == false){
+                superagent.get(url)
+                    .then((data) => {
+                        location = new Location(city, data.body); //the get will return All the data but the data we need is in the body
+                        let SQL2 = `INSERT INTO t1 VALUES ('${city}','${location.formatted_query}','${location.latitude}','${location.longitude}');`;
+                        client.query(SQL2);//don't need to wait for it to process
+                        console.log("form API");
+
+                    })
+            }
+        })
+
+console.log(location);
+
+return location;
+}
+
+
 //callback functions
 function locationHandler(req, res) {
     let city = req.query.city;
     let key = process.env.GEOCODE_API_KEY;
-    const url = `https://eu1.locationiq.com/v1/search.php?key=${key}&q=${city}&format=json`;
+    var url = `https://eu1.locationiq.com/v1/search.php?key=${key}&q=${city}&format=json`;
 
-    superagent.get(url)
-        .then((data) => {
-            let location = new Location(city, data.body); //the get will return All the data but the data we need is in the body
-            res.send(location);
-        })
-        .catch(() => { errorHandler(req, res) });
+    // superagent.get(url)
+    // .then((data) => {
+    //     let location = new Location(city, data.body); //the get will return All the data but the data we need is in the body
+    //     let SQL2 = `INSERT INTO t1 VALUES ('${city}','${location.formatted_query}','${location.latitude}','${location.longitude}');`;
+    //     client.query(SQL2);//don't need to wait for it to process
+    //     console.log("from locationHandler");
 
+    // })
+
+
+
+
+    let loc = checkDB(city, url, key);
+
+    res.status(200).json(loc);
 }
+
 function weatherHandler(req, res) {
     let key = process.env.WEATHER_API_KEY;
     let lon = req.query.longitude;
@@ -128,6 +178,9 @@ function Trail(trailData) {
     this.condition_time = trailData.conditionDate.split(" ")[1];
 }
 
-server.listen(PORT, () => {
-    console.log("Serevr is up");
-});
+client.connect()
+    .then(() => {
+        server.listen(PORT, () => {
+            console.log("Serevr is up");
+        });
+    })
