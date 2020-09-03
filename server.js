@@ -99,14 +99,20 @@ function trailHandler(req, res) {
 //https://api.themoviedb.org/3/movie/550?api_key=e8c390c87dda40fcff8bcffc9156f6b2&region
 function moviesHandler(req,res){
     let key = process.env.MOVIE_API_KEY;
-    let city = req.query.city;
+    let city = req.query.search_query;
+    let moArr=[];
     //TODO
-    let url = `https://api.themoviedb.org/3/movie/550?api_key=${key}&query=${city}`;
+    let url = `https://api.themoviedb.org/3/discover/movie?api_key=${key}`
 
     superagent.get(url)
         .then((results) => {
-            let movie = results.body.map((item) => new Movies(item));
-            res.status(200).send(movie);
+
+            results.body.results.map((item) => {
+               let movie = new Movies(item);
+               moArr.push(movie);
+            });
+            res.status(200).send(moArr);
+
         })
         .catch(() => {
             errorHandler(req, res);
@@ -116,22 +122,20 @@ function moviesHandler(req,res){
 }
 function yelpHandler (req , res ){
     let key =process.env.YELP_API_KEY;
-    let lon = req.query.longitude;
-    let lat = req.query.latitude;
-    let url = `https://api.yelp.com/v3/businesses/search?text=del&latitude=${lon}&longitude=${lat}`;
+    let city = req.query.search_query;
+    let url = `https://api.yelp.com/v3/businesses/search?query=${city}`;
     ///TODO
-    superagent.get(url)
+    superagent.get(url).set('Authorization :',`Bearer ${process.env.YELP_API_KEY}`)
     .then((results) => {
-        console.log("jgjhg");
-        req.headers['Authorization']=`Bearer ${key}`;
-        res.headers['Authorization']=`Bearer ${key}`;
-
-        let review = results.body.businesses.map((item) => new Review(item));
+        console.log(url);
         console.log(results)
-        res.status(200).send(review);
+
+        // let review = results.body.businesses.map((item) => new Review(item));
+        // res.status(200).json(review);
     })
     .catch(() => {
         errorHandler(req, res);
+
     });
 }
 
@@ -198,7 +202,7 @@ function Movies(movieData){
     this.overview = movieData.overview;
     this.average_votes = movieData.vote_average;
     this.total_votes= movieData.vote_count;
-    this.image_url= movieData.poster.path;
+    this.image_url= `https://image.tmdb.org/t/p/w500/${movieData.poster_path}`;
     this.popularity= movieData.popularity
     this.released_on= movieData.release_date;
 }
