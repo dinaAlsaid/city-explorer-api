@@ -96,12 +96,10 @@ function trailHandler(req, res) {
         });
 }
 
-//https://api.themoviedb.org/3/movie/550?api_key=e8c390c87dda40fcff8bcffc9156f6b2&region
 function moviesHandler(req,res){
     let key = process.env.MOVIE_API_KEY;
     let city = req.query.search_query;
     let moArr=[];
-    //TODO
     let url = `https://api.themoviedb.org/3/discover/movie?api_key=${key}`
 
     superagent.get(url)
@@ -123,15 +121,15 @@ function moviesHandler(req,res){
 function yelpHandler (req , res ){
     let key =process.env.YELP_API_KEY;
     let city = req.query.search_query;
-    let url = `https://api.yelp.com/v3/businesses/search?query=${city}`;
-    ///TODO
-    superagent.get(url).set('Authorization :',`Bearer ${process.env.YELP_API_KEY}`)
+
+    let url = `https://api.yelp.com/v3/businesses/search?location=${city}&limit=5`;
+    superagent.get(url).set('Authorization', `Bearer ${key}`)
     .then((results) => {
         console.log(url);
-        console.log(results)
+        let yresults=JSON.parse(results.text);
 
-        // let review = results.body.businesses.map((item) => new Review(item));
-        // res.status(200).json(review);
+        let review =yresults.businesses.map((item) => new Review(item));
+        res.status(200).send(review);
     })
     .catch(() => {
         errorHandler(req, res);
