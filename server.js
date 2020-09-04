@@ -121,13 +121,10 @@ function moviesHandler(req,res){
 function yelpHandler (req , res ){
     let key =process.env.YELP_API_KEY;
     let city = req.query.search_query;
-
-    let url = `https://api.yelp.com/v3/businesses/search?location=${city}&limit=5`;
+    let url = `https://api.yelp.com/v3/businesses/search?location=${city}&limit=20`;
     superagent.get(url).set('Authorization', `Bearer ${key}`)
     .then((results) => {
-        console.log(url);
         let yresults=JSON.parse(results.text);
-
         let review =yresults.businesses.map((item) => new Review(item));
         res.status(200).send(review);
     })
