@@ -1,10 +1,11 @@
 # city-explorer-api
 
-**Author**: Dina Alsaid
+**Author**: Dina Alsaid 
+    lab 8(adding database) and 9(movies and yelp): Dina, Hamza
 **Version**: 1.1.0 (increment the patch/fix version number if you make more commits past your first submission)
 
 ## Overview
-<!-- Provide a high level overview of what this application is and why you are building it, beyond the fact that it's an assignment for this class. (i.e. What's your problem domain?) -->
+
  City Explorer Application allows a user to search for a location, present a Map, as well as interesting information about the area.
 
 ## Getting Started
@@ -19,6 +20,7 @@ Uses the following packages :
 * CORS
 * dontenv
 * superagent
+* pg
 
 ## Change Log
 
@@ -28,6 +30,9 @@ Uses the following packages :
 31-08-2020 9:00pm - Application is now connected to the hiking project API.
 
 ## Credits and Collaborations
-<!-- Give credit (and a link) to other people or resources that helped you build this application. -->
- This is the back-end of city explorer app , the front-end is provided from Code Fellows.
- [front-end app](https://codefellows.github.io/code-301-guide/curriculum/city-explorer-app/front-end/)
+
+This is the back-end of city explorer app , the front-end is provided from Code Fellows.
+[front-end app](https://codefellows.github.io/code-301-guide/curriculum/city-explorer-app/front-end/)
+
+credits : helped with suggestions and debugging some problems
+Dana Alabbadi, Ahmad yousef, bayan Alalem
